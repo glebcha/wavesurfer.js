@@ -252,7 +252,28 @@ var WaveSurfer = {
             width = parentWidth;
         }
 
-        var peaks = this.backend.getPeaks(width);
+        //Added localStorage caching for peaks
+        var correctedWidth = Math.round(
+            this.drawer.getWidth() * 1 * 0.1
+        );
+        var peaks = this.backend.getPeaks(width),
+            correctedPeaks = this.backend.getPeaks(correctedWidth),
+            finalPeaks = function(peaks){
+                var peakArr = [];
+                for (var i = 0; i < peaks.length; ++i) {
+                    var peak = peaks[i];
+                    if(i % 2 == 0 || i % 3 == 0 || i % 5 == 0){
+                        peakArr.push(peaks[i]);
+                    }
+                };
+                return peakArr;
+                //console.log(peakArr.length);
+            };
+
+        var reducedPeaks = finalPeaks(correctedPeaks);
+
+        localStorage.clear();
+        localStorage.setItem('peaks', JSON.stringify(reducedPeaks));
         this.drawer.drawPeaks(peaks, width);
         this.fireEvent('redraw', peaks, width);
     },
